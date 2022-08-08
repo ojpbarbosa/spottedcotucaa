@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "distribution",
+    "module": "commonjs",
+    "target": "es2021",
+    "esModuleInterop": true
+  },
+  "include": ["index.ts"],
+  "exclude": ["*.spec.ts"]
+}

@@ -27,12 +27,6 @@ setInterval(async () => {
   if (posts[0].post.id !== lastSpottedId) {
     const spottedsToBeConverted = []
 
-    spottedsToBeConverted.push({
-      timestamp: new Date().getTime(),
-      spotted:
-        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-    })
-
     posts.every((p) => {
       const { post } = p
 

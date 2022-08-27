@@ -25,9 +25,9 @@ setInterval(async () => {
   const { posts } = data
 
   if (posts[0].post.id !== lastSpottedId) {
-    const postsToBeConverted = []
+    const spottedsToBeConverted = []
 
-    postsToBeConverted.push({
+    spottedsToBeConverted.push({
       timestamp: new Date().getTime(),
       spotted:
         'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
@@ -37,7 +37,7 @@ setInterval(async () => {
       const { post } = p
 
       if (post.id !== lastSpottedId) {
-        postsToBeConverted.push({
+        spottedsToBeConverted.push({
           spotted: post.comment,
           timestamp: post.timestamp
         })
@@ -48,7 +48,7 @@ setInterval(async () => {
       }
     })
 
-    postsToBeConverted.map(async (p) => {
+    spottedsToBeConverted.map(async (p) => {
       let { spotted } = p
 
       if (spotted.length <= 280) {

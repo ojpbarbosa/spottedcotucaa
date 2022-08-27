@@ -1,17 +1,18 @@
 import axios from 'axios'
+import { createCanvas, loadImage } from 'canvas'
 
-import { readFile, writeFile } from 'fs'
+import { readFile, writeFileSync } from 'fs'
 
 const INTERVAL = 1000 * 10 // 10 seconds
 
 setInterval(async () => {
-  let lastPostId = ''
+  let lastSpottedId = ''
 
-  readFile('./data.json', 'utf8', (error, data) => {
+  readFile('./data/spotteds.json', 'utf8', (error, data) => {
     if (!error) {
       const parsedData = JSON.parse(data)
 
-      lastPostId = parsedData.last_post_id
+      lastSpottedId = parsedData.last_spotted_id
     }
   })
 
@@ -23,12 +24,17 @@ setInterval(async () => {
 
   const { posts } = data
 
-  if (posts[0].post.id !== lastPostId) {
+  if (posts[0].post.id !== lastSpottedId) {
     const postsToBeConverted = []
 
-    posts.every((post) => {
-      if (post.post.id !== lastPostId) {
-        postsToBeConverted.push(post.post.comment)
+    posts.every((p) => {
+      const { post } = p
+
+      if (post.id !== lastSpottedId) {
+        postsToBeConverted.push({
+          spotted: post.comment,
+          timestamp: post.timestamp
+        })
 
         return true
       } else {
@@ -36,15 +42,62 @@ setInterval(async () => {
       }
     })
 
-    lastPostId = posts[0].post.id
+    postsToBeConverted.map(async (p) => {
+      const canvas = createCanvas(1080, 1080)
+      const context = canvas.getContext('2d')
 
-    console.log(postsToBeConverted)
+      const { timestamp } = p
+
+      const createdAt = new Date(timestamp * 1000)
+
+      context.fillStyle = '#ffffff'
+      context.drawImage(
+        await loadImage('./images/spotted.jpg'),
+        0,
+        0,
+        1080,
+        1080
+      )
+
+      context.textAlign = 'start'
+      context.font = '42px "PT Sans"'
+
+      context.fillStyle = '#000'
+      context.fillText(
+        createdAt.toLocaleDateString('pt-BR', {
+          day: 'numeric',
+          month: 'numeric',
+          year: 'numeric'
+        }),
+        100,
+        360
+      )
+
+      let { spotted } = p
+
+      spotted = '"' + spotted + '"'
+
+      if (spotted.length <= 140) {
+        for (let i = 0; i < 35 - (spotted.length % 35) + 1; i++) {
+          const text = spotted.substring(i * 35, (i + 1) * 35)
+
+          if (text != ' ') {
+            context.fillText(text, 100, 400 + i * 40)
+          }
+        }
+      }
+
+      const buffer = canvas.toBuffer()
+
+      writeFileSync(`./image-${new Date().getTime()}.png`, buffer)
+    })
+
+    lastSpottedId = posts[0].post.id
   }
 
-  writeFile(
-    './data.json',
-    JSON.stringify({ last_post_id: lastPostId }),
-    'utf8',
-    () => {}
+  writeFileSync(
+    './data/spotteds.json',
+    JSON.stringify({ last_spotted_id: lastSpottedId }),
+    'utf8'
   )
 }, INTERVAL)

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "distribution",
+    "outDir": ".",
     "module": "commonjs",
     "target": "es2021",
     "esModuleInterop": true

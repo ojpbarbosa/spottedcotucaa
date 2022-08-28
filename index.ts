@@ -5,7 +5,7 @@ import { createTransport } from 'nodemailer'
 
 import { readdir, readFile, unlink, writeFileSync } from 'fs'
 
-const INTERVAL = 1000 * 60 * 5 // 5 minutes
+const INTERVAL = 1000 * 10 // 5 minutes
 
 setInterval(async () => {
   let lastSpottedId = ''
@@ -53,7 +53,6 @@ setInterval(async () => {
 
         const canvas = createCanvas(1080, 1080)
         const context = canvas.getContext('2d')
-        context.font = '42px serif'
         context.textAlign = 'start'
 
         context.fillStyle = '#ffffff'
@@ -65,6 +64,7 @@ setInterval(async () => {
           const createdAt = new Date(timestamp * 1000)
 
           context.fillStyle = '#000'
+          context.font = '42px "Roboto"'
           context.fillText(
             createdAt.toLocaleDateString('pt-BR', {
               day: 'numeric',
@@ -75,14 +75,20 @@ setInterval(async () => {
             300
           )
 
-          // improve implementation
-          for (let i = 0; i < 35 - (spotted.length % 35) + 1; i++) {
-            const line = spotted.substring(i * 35, (i + 1) * 35)
+          let line = ''
+          let lineCount = 0
 
-            if (line != ' ') {
-              context.fillText(line, 100, 360 + i * 40)
+          spotted.split(' ').forEach((word) => {
+            if (context.measureText(line + ' ' + word).width > 800) {
+              context.fillText(line, 100, 360 + lineCount * 50)
+              line = ''
+              lineCount++
             }
-          }
+
+            line += word + ' '
+          })
+
+          context.fillText(line, 100, 360 + lineCount * 50)
 
           const buffer = canvas.toBuffer()
 

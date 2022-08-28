@@ -1,9 +1,11 @@
+import 'dotenv/config'
 import axios from 'axios'
 import { createCanvas, loadImage } from 'canvas'
+import { createTransport } from 'nodemailer'
 
 import { readFile, writeFileSync } from 'fs'
 
-const INTERVAL = 1000 * 10 // 10 seconds
+const INTERVAL = 1000 * 60 * 5 // 5 minutes
 
 setInterval(async () => {
   let lastSpottedId = ''
@@ -32,6 +34,7 @@ setInterval(async () => {
 
       if (post.id !== lastSpottedId) {
         spottedsToBeConverted.push({
+          id: post.id,
           spotted: post.comment,
           timestamp: post.timestamp
         })
@@ -42,55 +45,89 @@ setInterval(async () => {
       }
     })
 
-    spottedsToBeConverted.map(async (p) => {
-      let { spotted } = p
+    const convertedSpotteds = spottedsToBeConverted.map((s) => {
+      let { spotted } = s
 
       if (spotted.length <= 280) {
         spotted = '"' + spotted + '"'
 
         const canvas = createCanvas(1080, 1080)
         const context = canvas.getContext('2d')
-
-        const { timestamp } = p
-
-        const createdAt = new Date(timestamp * 1000)
+        context.font = '42px serif'
+        context.textAlign = 'start'
 
         context.fillStyle = '#ffffff'
-        context.drawImage(
-          await loadImage('./images/spotted.jpg'),
-          0,
-          0,
-          1080,
-          1080
-        )
+        loadImage('./images/spotted.jpg').then((image) => {
+          context.drawImage(image, 0, 0, 1080, 1080)
 
-        context.textAlign = 'start'
-        context.font = '42px "PT Sans"'
+          const { timestamp } = s
 
-        context.fillStyle = '#000'
-        context.fillText(
-          createdAt.toLocaleDateString('pt-BR', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric'
-          }),
-          100,
-          300
-        )
+          const createdAt = new Date(timestamp * 1000)
 
-        // improve implementation
-        for (let i = 0; i < 35 - (spotted.length % 35) + 1; i++) {
-          const text = spotted.substring(i * 35, (i + 1) * 35)
+          context.fillStyle = '#000'
+          context.fillText(
+            createdAt.toLocaleDateString('pt-BR', {
+              day: 'numeric',
+              month: 'numeric',
+              year: 'numeric'
+            }),
+            100,
+            300
+          )
 
-          if (text != ' ') {
-            context.fillText(text, 100, 360 + i * 40)
+          // improve implementation
+          for (let i = 0; i < 35 - (spotted.length % 35) + 1; i++) {
+            const line = spotted.substring(i * 35, (i + 1) * 35)
+
+            if (line != ' ') {
+              context.fillText(line, 100, 360 + i * 40)
+            }
           }
+
+          const buffer = canvas.toBuffer()
+
+          writeFileSync(`./images/${s.id}.png`, buffer)
+        })
+
+        return {
+          id: s.id,
+          image: `./images/${s.id}.png`
         }
-
-        const buffer = canvas.toBuffer()
-
-        writeFileSync(`./image-${new Date().getTime()}.png`, buffer)
       }
+    })
+
+    const transporter = createTransport({
+      host: process.env.NODEMAILER_TRANSPORTER_HOST,
+      port: Number(process.env.NODEMAILER_TRANSPORTER_PORT),
+      secure: true,
+      auth: {
+        user: process.env.NODEMAILER_TRANSPORTER_USERNAME,
+        pass: process.env.NODEMAILER_TRANSPORTER_PASSWORD
+      }
+    })
+
+    await transporter.sendMail({
+      from: {
+        name: process.env.MAIL_NAME,
+        address: process.env.MAIL_ADDRESS
+      },
+      to: {
+        name: process.env.MAIL_NAME,
+        address: process.env.MAIL_ADDRESS
+      },
+      subject: 'Novos spotteds!',
+      html: convertedSpotteds
+        .map((s) => {
+          return `<p>${s.id}</p><img src="cid:${s.id}">`
+        })
+        .join(''),
+      attachments: convertedSpotteds.map((s) => {
+        return {
+          filename: `${s.id}.png`,
+          path: s.image,
+          cid: s.id.toString()
+        }
+      })
     })
 
     lastSpottedId = posts[0].post.id

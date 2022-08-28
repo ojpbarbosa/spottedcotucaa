@@ -1,2 +1,4 @@
-distribuition/
-node_modules/
+.env
+
+distribuition
+node_modules

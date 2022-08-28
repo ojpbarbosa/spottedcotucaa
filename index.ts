@@ -3,7 +3,7 @@ import axios from 'axios'
 import { createCanvas, loadImage } from 'canvas'
 import { createTransport } from 'nodemailer'
 
-import { readFile, writeFileSync } from 'fs'
+import { readdir, readFile, unlink, writeFileSync } from 'fs'
 
 const INTERVAL = 1000 * 60 * 5 // 5 minutes
 
@@ -131,6 +131,18 @@ setInterval(async () => {
     })
 
     lastSpottedId = posts[0].post.id
+
+    readdir('./images', (error, files) => {
+      files.forEach((file) => {
+        if (file !== 'spotted.jpg' && file !== `${lastSpottedId}.png`) {
+          unlink(`./images/${file}`, (error) => {
+            if (error) {
+              console.error(error)
+            }
+          })
+        }
+      })
+    })
   }
 
   writeFileSync(

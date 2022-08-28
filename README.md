@@ -16,7 +16,7 @@ Simply love.
   </a>
 </p>
 <h3>Description</h3>
-Node.js node-canvas-based utility directed to help [@spottedcotucaa](https://www.instagram.com/spottedcotucaa) with Instagram posts.
+Node.js node-canvas-based utility directed to help <a href="https://www.instagram.com/spottedcotucaa">@spottedcotuca</a> with Instagram posts.
 <br>
 <h3>Stack</h3>
 

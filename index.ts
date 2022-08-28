@@ -18,17 +18,16 @@ const transporter = createTransport({
 })
 
 setInterval(async () => {
-  let lastConvertedSpottedId = JSON.parse(
-    readFileSync('./data/spotteds.json', 'utf8')
-  ).last_converted_spotted_id
-
   const response = await axios.get(
     'https://curiouscat.live/api/v2.1/profile?username=SpottedCotucaa'
   )
 
   const { data } = response
-
   const { posts } = data
+
+  let lastConvertedSpottedId = JSON.parse(
+    readFileSync('./data/spotteds.json', 'utf8')
+  ).last_converted_spotted_id
 
   if (posts[0].post.id !== lastConvertedSpottedId) {
     const spottedsToBeConverted = []

@@ -18,9 +18,9 @@ const transporter = createTransport({
 })
 
 setInterval(async () => {
-  let lastSpottedId = JSON.parse(
+  let lastConvertedSpottedId = JSON.parse(
     readFileSync('./data/spotteds.json', 'utf8')
-  ).last_spotted_id
+  ).last_converted_spotted_id
 
   const response = await axios.get(
     'https://curiouscat.live/api/v2.1/profile?username=SpottedCotucaa'
@@ -30,13 +30,13 @@ setInterval(async () => {
 
   const { posts } = data
 
-  if (posts[0].post.id !== lastSpottedId) {
+  if (posts[0].post.id !== lastConvertedSpottedId) {
     const spottedsToBeConverted = []
 
     posts.every((p) => {
       const { post } = p
 
-      if (post.id !== lastSpottedId) {
+      if (post.id !== lastConvertedSpottedId) {
         spottedsToBeConverted.push({
           id: post.id,
           spotted: post.comment,
@@ -128,10 +128,10 @@ setInterval(async () => {
       })
     })
 
-    lastSpottedId = posts[0].post.id
+    lastConvertedSpottedId = posts[0].post.id
 
     readdirSync('./images').forEach((file) => {
-      if (file !== 'spotted.jpg' && file !== `${lastSpottedId}.png`) {
+      if (file !== 'spotted.jpg' && file !== `${lastConvertedSpottedId}.png`) {
         unlinkSync(`./images/${file}`)
       }
     })
@@ -139,7 +139,7 @@ setInterval(async () => {
 
   writeFileSync(
     './data/spotteds.json',
-    JSON.stringify({ last_spotted_id: lastSpottedId }),
+    JSON.stringify({ last_converted_spotted_id: lastConvertedSpottedId }),
     'utf8'
   )
 }, INTERVAL)

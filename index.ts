@@ -64,7 +64,7 @@ setInterval(async () => {
           const createdAt = new Date(timestamp * 1000)
 
           context.fillStyle = '#000'
-          context.font = '42px'
+          context.font = '42px Serif'
           context.fillText(
             createdAt.toLocaleDateString('pt-BR', {
               day: 'numeric',

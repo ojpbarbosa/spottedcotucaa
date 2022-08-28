@@ -83,7 +83,7 @@ setInterval(async () => {
 
           spotted.split(' ').forEach((word) => {
             if (context.measureText(line + ' ' + word).width > 800) {
-              context.fillText(line, 100, 360 + lineCount * 50)
+              context.fillText(line, 100, 370 + lineCount * 50)
               line = ''
               lineCount++
             }
@@ -91,7 +91,7 @@ setInterval(async () => {
             line += word + ' '
           })
 
-          context.fillText(line, 100, 360 + lineCount * 50)
+          context.fillText(line, 100, 370 + lineCount * 50)
 
           writeFileSync(`./images/${s.id}.png`, canvas.toBuffer())
         })

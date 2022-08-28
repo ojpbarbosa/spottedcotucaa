@@ -114,12 +114,12 @@ setInterval(async () => {
 
     await transporter.sendMail({
       from: {
-        name: process.env.MAIL_NAME,
-        address: process.env.MAIL_ADDRESS
+        name: process.env.MAIL_FROM_NAME,
+        address: process.env.MAIL_FROM_ADDRESS
       },
       to: {
-        name: process.env.MAIL_NAME,
-        address: process.env.MAIL_ADDRESS
+        name: process.env.MAIL_TO_NAME,
+        address: process.env.MAIL_TO_ADDRESS
       },
       subject: 'Novos spotteds!',
       html: convertedSpotteds

@@ -1,22 +1,26 @@
 import 'dotenv/config'
 import axios from 'axios'
-import { createCanvas, loadImage } from 'canvas'
 import { createTransport } from 'nodemailer'
+import { createCanvas, loadImage } from 'canvas'
 
-import { readdir, readFile, unlink, writeFileSync } from 'fs'
+import { readdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 
 const INTERVAL = 1000 * 60 * 5 // 5 minutes
 
+const transporter = createTransport({
+  host: process.env.NODEMAILER_TRANSPORTER_HOST,
+  port: Number(process.env.NODEMAILER_TRANSPORTER_PORT),
+  secure: true,
+  auth: {
+    user: process.env.NODEMAILER_TRANSPORTER_USERNAME,
+    pass: process.env.NODEMAILER_TRANSPORTER_PASSWORD
+  }
+})
+
 setInterval(async () => {
-  let lastSpottedId = ''
-
-  readFile('./data/spotteds.json', 'utf8', (error, data) => {
-    if (!error) {
-      const parsedData = JSON.parse(data)
-
-      lastSpottedId = parsedData.last_spotted_id
-    }
-  })
+  let lastSpottedId = JSON.parse(
+    readFileSync('./data/spotteds.json', 'utf8')
+  ).last_spotted_id
 
   const response = await axios.get(
     'https://curiouscat.live/api/v2.1/profile?username=SpottedCotucaa'
@@ -90,25 +94,13 @@ setInterval(async () => {
 
           context.fillText(line, 100, 360 + lineCount * 50)
 
-          const buffer = canvas.toBuffer()
-
-          writeFileSync(`./images/${s.id}.png`, buffer)
+          writeFileSync(`./images/${s.id}.png`, canvas.toBuffer())
         })
 
         return {
           id: s.id,
           image: `./images/${s.id}.png`
         }
-      }
-    })
-
-    const transporter = createTransport({
-      host: process.env.NODEMAILER_TRANSPORTER_HOST,
-      port: Number(process.env.NODEMAILER_TRANSPORTER_PORT),
-      secure: true,
-      auth: {
-        user: process.env.NODEMAILER_TRANSPORTER_USERNAME,
-        pass: process.env.NODEMAILER_TRANSPORTER_PASSWORD
       }
     })
 
@@ -124,7 +116,7 @@ setInterval(async () => {
       subject: 'Novos spotteds!',
       html: convertedSpotteds
         .map((s) => {
-          return `<p>${s.id}</p><img src="cid:${s.id}">`
+          return `<img src="cid:${s.id}">`
         })
         .join(''),
       attachments: convertedSpotteds.map((s) => {
@@ -138,16 +130,10 @@ setInterval(async () => {
 
     lastSpottedId = posts[0].post.id
 
-    readdir('./images', (error, files) => {
-      files.forEach((file) => {
-        if (file !== 'spotted.jpg' && file !== `${lastSpottedId}.png`) {
-          unlink(`./images/${file}`, (error) => {
-            if (error) {
-              console.error(error)
-            }
-          })
-        }
-      })
+    readdirSync('./images').forEach((file) => {
+      if (file !== 'spotted.jpg' && file !== `${lastSpottedId}.png`) {
+        unlinkSync(`./images/${file}`)
+      }
     })
   }
 

@@ -15,7 +15,6 @@ Simply love.
     <img alt="Codacy Badge" src="https://app.codacy.com/project/badge/Grade/ebb299b1768d4fbc989891f99465c0bc">
   </a>
 </p>
-<br>
 <h3>Description</h3>
 Node.js node-canvas-based utility directed to help @spottedcotucaa with Instagram posts.
 <br>

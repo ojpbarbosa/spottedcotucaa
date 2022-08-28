@@ -5,7 +5,7 @@ import { createTransport } from 'nodemailer'
 
 import { readdir, readFile, unlink, writeFileSync } from 'fs'
 
-const INTERVAL = 1000 * 10 // 5 minutes
+const INTERVAL = 1000 * 60 * 5 // 5 minutes
 
 setInterval(async () => {
   let lastSpottedId = ''
@@ -64,7 +64,7 @@ setInterval(async () => {
           const createdAt = new Date(timestamp * 1000)
 
           context.fillStyle = '#000'
-          context.font = '42px "Roboto"'
+          context.font = '42px'
           context.fillText(
             createdAt.toLocaleDateString('pt-BR', {
               day: 'numeric',

@@ -12,7 +12,7 @@ const transporter = createTransport({
   port: Number(process.env.NODEMAILER_TRANSPORTER_PORT),
   secure: true,
   auth: {
-    user: process.env.NODEMAILER_TRANSPORTER_USERNAME,
+    user: process.env.NODEMAILER_TRANSPORTER_USER,
     pass: process.env.NODEMAILER_TRANSPORTER_PASSWORD
   }
 })

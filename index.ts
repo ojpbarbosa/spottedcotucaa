@@ -127,13 +127,13 @@ setInterval(async () => {
       })
     })
 
-    lastConvertedSpottedId = posts[0].post.id
-
     readdirSync('./images').forEach((file) => {
-      if (file !== 'spotted.jpg' && file !== `${lastConvertedSpottedId}.png`) {
+      if (file !== 'spotted.jpg') {
         unlinkSync(`./images/${file}`)
       }
     })
+    
+    lastConvertedSpottedId = posts[0].post.id
   }
 
   writeFileSync(

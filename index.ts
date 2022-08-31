@@ -51,6 +51,8 @@ setInterval(async () => {
     const convertedSpotteds = spottedsToBeConverted.map((s) => {
       let { spotted } = s
 
+      spotted.replace('\n', ' ')
+
       if (spotted.length <= 280) {
         spotted = '"' + spotted + '"'
 
@@ -82,7 +84,7 @@ setInterval(async () => {
           let lineCount = 0
 
           spotted.split(' ').forEach((word) => {
-            if (context.measureText(line + ' ' + word).width > 880) {
+            if (context.measureText(line + ' ' + word).width >= 880) {
               context.fillText(line, 100, 370 + lineCount * 50)
               line = ''
               lineCount++
@@ -132,7 +134,7 @@ setInterval(async () => {
         unlinkSync(`./images/${file}`)
       }
     })
-    
+
     lastConvertedSpottedId = posts[0].post.id
   }
 

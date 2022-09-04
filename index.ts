@@ -32,21 +32,23 @@ setInterval(async () => {
   if (posts[0].post.id !== lastConvertedSpottedId) {
     const spottedsToBeConverted = []
 
-    posts.every((p) => {
-      const { post } = p
+    posts.every(
+      (p: { post: { id: string; comment: string; timestamp: Date } }) => {
+        const { post } = p
 
-      if (post.id !== lastConvertedSpottedId) {
-        spottedsToBeConverted.push({
-          id: post.id,
-          spotted: post.comment,
-          timestamp: post.timestamp
-        })
+        if (post.id !== lastConvertedSpottedId) {
+          spottedsToBeConverted.push({
+            id: post.id,
+            spotted: post.comment,
+            timestamp: post.timestamp
+          })
 
-        return true
-      } else {
-        return false
+          return true
+        } else {
+          return false
+        }
       }
-    })
+    )
 
     const convertedSpotteds = spottedsToBeConverted.map((s) => {
       let { spotted } = s
@@ -83,7 +85,7 @@ setInterval(async () => {
           let line = ''
           let lineCount = 0
 
-          spotted.split(' ').forEach((word) => {
+          spotted.split(' ').forEach((word: string) => {
             if (context.measureText(line + ' ' + word).width >= 880) {
               context.fillText(line, 100, 370 + lineCount * 50)
               line = ''

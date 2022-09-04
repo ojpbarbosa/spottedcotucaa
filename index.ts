@@ -33,14 +33,16 @@ setInterval(async () => {
     const spottedsToBeConverted = []
 
     posts.every(
-      (p: { post: { id: string; comment: string; timestamp: Date } }) => {
-        const { post } = p
-
-        if (post.id !== lastConvertedSpottedId) {
+      ({
+        post: { id, comment: spotted, timestamp }
+      }: {
+        post: { id: string; comment: string; timestamp: Date }
+      }) => {
+        if (id !== lastConvertedSpottedId) {
           spottedsToBeConverted.push({
-            id: post.id,
-            spotted: post.comment,
-            timestamp: post.timestamp
+            id,
+            spotted,
+            timestamp
           })
 
           return true
@@ -50,62 +52,60 @@ setInterval(async () => {
       }
     )
 
-    const convertedSpotteds = spottedsToBeConverted.map((s) => {
-      let { spotted } = s
+    const convertedSpotteds = spottedsToBeConverted.map(
+      ({ id, spotted, timestamp }) => {
+        spotted = spotted.replace(/(\r\n|\n|\r)/gm, ' ')
 
-      spotted.replace('\n', ' ')
+        if (spotted.length <= 280) {
+          spotted = '"' + spotted + '"'
 
-      if (spotted.length <= 280) {
-        spotted = '"' + spotted + '"'
+          const canvas = createCanvas(1080, 1080)
+          const context = canvas.getContext('2d')
+          context.textAlign = 'start'
 
-        const canvas = createCanvas(1080, 1080)
-        const context = canvas.getContext('2d')
-        context.textAlign = 'start'
+          context.fillStyle = '#ffffff'
+          loadImage('./images/spotted.jpg').then((image) => {
+            context.drawImage(image, 0, 0, 1080, 1080)
 
-        context.fillStyle = '#ffffff'
-        loadImage('./images/spotted.jpg').then((image) => {
-          context.drawImage(image, 0, 0, 1080, 1080)
+            const createdAt = new Date(timestamp * 1000 - 10800000)
 
-          const { timestamp } = s
+            context.fillStyle = '#000'
+            context.font = '42px Serif'
+            context.fillText(
+              createdAt.toLocaleDateString('pt-br', {
+                day: 'numeric',
+                month: 'numeric',
+                year: 'numeric'
+              }),
+              100,
+              300
+            )
 
-          const createdAt = new Date(timestamp * 1000)
+            let line = ''
+            let lineCount = 0
 
-          context.fillStyle = '#000'
-          context.font = '42px Serif'
-          context.fillText(
-            createdAt.toLocaleDateString('pt-BR', {
-              day: 'numeric',
-              month: 'numeric',
-              year: 'numeric'
-            }),
-            100,
-            300
-          )
+            spotted.split(' ').forEach((word: string) => {
+              if (context.measureText(line + ' ' + word).width >= 880) {
+                context.fillText(line, 100, 370 + lineCount * 50)
+                line = ''
+                lineCount++
+              }
 
-          let line = ''
-          let lineCount = 0
+              line += word + ' '
+            })
 
-          spotted.split(' ').forEach((word: string) => {
-            if (context.measureText(line + ' ' + word).width >= 880) {
-              context.fillText(line, 100, 370 + lineCount * 50)
-              line = ''
-              lineCount++
-            }
+            context.fillText(line, 100, 370 + lineCount * 50)
 
-            line += word + ' '
+            writeFileSync(`./images/${id}.png`, canvas.toBuffer())
           })
 
-          context.fillText(line, 100, 370 + lineCount * 50)
-
-          writeFileSync(`./images/${s.id}.png`, canvas.toBuffer())
-        })
-
-        return {
-          id: s.id,
-          image: `./images/${s.id}.png`
+          return {
+            id: id,
+            image: `./images/${id}.png`
+          }
         }
       }
-    })
+    )
 
     await transporter.sendMail({
       from: {
